@@ -7,15 +7,17 @@ describe('useWebSocket', () => {
   let mockServer: WS
 
   beforeEach(async () => {
-    // @ts-ignore
+    // @ts-expect-error - deleting global for mock setup
     delete global.WebSocket;
-    mockServer = new WS('ws://localhost:3001/ws', { jsonProtocol: true })
+    mockServer = new WS('ws://localhost:7895/ws', { jsonProtocol: true })
   })
 
   afterEach(async () => {
     try {
       mockServer.close()
-    } catch (e) {}
+    } catch {
+      // Ignore cleanup errors
+    }
     await WS.clean()
   })
 

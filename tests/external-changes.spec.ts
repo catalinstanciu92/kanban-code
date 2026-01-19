@@ -16,7 +16,7 @@ test.describe('External File Changes', () => {
     const currentContent = await readFile(todoPath, 'utf-8')
     
     // Append a new task externally
-    const newTask = `\nexternal-task-1,External Task,Added by external app,high,${new Date().toISOString()},${new Date().toISOString()},\"external\"`
+    const newTask = `\nexternal-task-1,External Task,Added by external app,high,${new Date().toISOString()},${new Date().toISOString()},"external"`
     await writeFile(todoPath, currentContent + newTask, 'utf-8')
     
     // Wait for WebSocket notification and UI refresh
