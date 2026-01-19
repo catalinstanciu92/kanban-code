@@ -56,6 +56,8 @@ describe('KanbanBoard', () => {
       />
     )
     
-    expect(screen.getByTestId('connection-status')).toHaveClass('connected')
+    const status = screen.getByTestId('connection-status')
+    expect(status).toBeInTheDocument()
+    expect(status).toHaveTextContent('Live')
   })
 })
