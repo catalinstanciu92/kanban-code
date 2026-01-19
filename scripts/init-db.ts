@@ -2,7 +2,7 @@ import { mkdir, writeFile, access } from 'fs/promises'
 import { join } from 'path'
 import yaml from 'js-yaml'
 
-const DB_PATH = process.env.DB_PATH ?? './db'
+const DB_PATH = process.env.DB_PATH ?? './kanban-code'
 
 const DEFAULT_CONFIG = {
   columns: [

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { writeFile, readFile } from 'fs/promises'
 import { join } from 'path'
 
-const DB_PATH = './db'
+const DB_PATH = './.kanban-code'
 
 test.describe('External File Changes', () => {
   test('should detect and reload when CSV file is modified externally', async ({ page }) => {

@@ -3,7 +3,7 @@ import { CsvService } from './services/csv-service'
 import { ConfigService } from './services/config-service'
 import type { ServerWebSocket } from 'bun'
 
-const DB_PATH = process.env.DB_PATH ?? './db'
+const DB_PATH = process.env.DB_PATH ?? './.kanban-code'
 const PORT = Number(process.env.PORT ?? 7895)
 
 const csvService = new CsvService(DB_PATH)
