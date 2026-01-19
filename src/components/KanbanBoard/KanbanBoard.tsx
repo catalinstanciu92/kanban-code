@@ -1,28 +1,36 @@
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { Column } from '../Column/Column'
-import type { ColumnConfig, Task, TasksByColumn } from '../../types'
-import { Wifi, WifiOff } from 'lucide-react'
+import type { ColumnConfig, Task, TasksByColumn, KanbanConfig } from '../../types'
+import { Wifi, WifiOff, Settings } from 'lucide-react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { ConfigEditDialog } from '../ConfigEditDialog/ConfigEditDialog'
 
 interface KanbanBoardProps {
   columns: ColumnConfig[]
+  config: KanbanConfig
   tasks: TasksByColumn
   onTaskMove: (taskId: string, fromColumn: string, toColumn: string) => void
-  onTaskCreate: (columnId: string, title: string) => void
+  onTaskCreate: (columnId: string, title: string, description: string, priority: Task['priority'], tags: string[]) => void
   onTaskDelete: (taskId: string, columnId: string) => void
   onTaskUpdate?: (taskId: string, columnId: string, updates: Partial<Task>) => void
+  onConfigSave?: (config: KanbanConfig) => void
   isConnected?: boolean
 }
 
 export function KanbanBoard({
   columns,
+  config,
   tasks,
   onTaskMove,
   onTaskCreate,
   onTaskDelete,
   onTaskUpdate,
+  onConfigSave,
   isConnected = false,
 }: KanbanBoardProps) {
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false)
   const sortedColumns = [...columns].sort((a, b) => a.order - b.order)
 
   function handleDragEnd(event: DragEndEvent) {
@@ -32,9 +40,11 @@ export function KanbanBoard({
     
     const taskId = active.id as string
     const fromColumn = active.data.current?.columnId as string
-    const toColumn = over.id as string
     
-    if (fromColumn !== toColumn) {
+    // Determine target column: if dropping on a task, use its columnId; otherwise over.id is the column
+    const toColumn = over.data.current?.columnId ?? over.id as string
+    
+    if (fromColumn && toColumn && fromColumn !== toColumn) {
       onTaskMove(taskId, fromColumn, toColumn)
     }
   }
@@ -53,25 +63,38 @@ export function KanbanBoard({
             </h1>
           </div>
           
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              isConnected 
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                : 'bg-red-500/10 text-red-400 border border-red-500/20'
-            }`}
-            data-testid="connection-status"
-          >
-            {isConnected ? (
-              <>
-                <Wifi size={14} />
-                <span>Live</span>
-              </>
-            ) : (
-              <>
-                <WifiOff size={14} />
-                <span>Offline</span>
-              </>
+          <div className="flex items-center gap-3">
+            {onConfigSave && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsConfigDialogOpen(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings size={16} className="mr-2" />
+                Config
+              </Button>
             )}
+            <div
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                isConnected 
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                  : 'bg-red-500/10 text-red-400 border border-red-500/20'
+              }`}
+              data-testid="connection-status"
+            >
+              {isConnected ? (
+                <>
+                  <Wifi size={14} />
+                  <span>Live</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff size={14} />
+                  <span>Offline</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -85,14 +108,25 @@ export function KanbanBoard({
                 key={column.id}
                 config={column}
                 tasks={tasks[column.id] ?? []}
-                onTaskCreate={(title) => onTaskCreate(column.id, title)}
+                allColumns={sortedColumns}
+                onTaskCreate={(title, description, priority, tags) => onTaskCreate(column.id, title, description, priority, tags)}
                 onTaskDelete={(taskId) => onTaskDelete(taskId, column.id)}
                 onTaskUpdate={(taskId, updates) => onTaskUpdate?.(taskId, column.id, updates)}
+                onTaskMove={(taskId, toColumnId) => onTaskMove(taskId, column.id, toColumnId)}
               />
             ))}
           </div>
         </div>
       </DndContext>
+      
+      {onConfigSave && (
+        <ConfigEditDialog
+          config={config}
+          open={isConfigDialogOpen}
+          onOpenChange={setIsConfigDialogOpen}
+          onSave={onConfigSave}
+        />
+      )}
     </div>
   )
 }

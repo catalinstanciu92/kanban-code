@@ -1,18 +1,23 @@
+import { useState } from 'react'
 import KanbanBoard from './components/KanbanBoard/KanbanBoard'
+import InitializationOverlay from './components/InitializationOverlay'
 import { useTasks } from './hooks/useTasks'
 import { useWebSocket } from './hooks/useWebSocket'
-import type { Task } from './types'
+import type { Task, KanbanConfig } from './types'
 
 function App() {
+  const [isReady, setIsReady] = useState(false)
   const {
     tasks,
     columns,
+    config,
     isLoading,
     error,
     addTask,
     moveTask,
     deleteTask,
     updateTask,
+    updateConfig,
     refresh,
   } = useTasks()
 
@@ -23,6 +28,10 @@ function App() {
       }
     },
   })
+
+  if (!isReady) {
+    return <InitializationOverlay onInitialized={() => setIsReady(true)} />
+  }
 
   if (isLoading) {
     return (
@@ -59,14 +68,25 @@ function App() {
     updateTask(taskId, columnId, updates)
   }
 
+  const handleTaskCreate = (columnId: string, title: string, description: string, priority: Task['priority'], tags: string[]) => {
+    addTask({ columnId, title, description, priority, tags })
+  }
+
+  const handleConfigSave = async (newConfig: KanbanConfig) => {
+    await updateConfig(newConfig)
+    refresh()
+  }
+
   return (
     <KanbanBoard
       columns={columns}
+      config={config!}
       tasks={tasks}
-      onTaskCreate={(columnId, title) => addTask({ columnId, title })}
+      onTaskCreate={handleTaskCreate}
       onTaskMove={moveTask}
       onTaskDelete={deleteTask}
       onTaskUpdate={handleTaskUpdate}
+      onConfigSave={handleConfigSave}
       isConnected={isConnected}
     />
   )

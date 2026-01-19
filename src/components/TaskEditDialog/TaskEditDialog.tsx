@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { Task } from '../../types'
+import type { Task, ColumnConfig } from '../../types'
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,9 @@ interface TaskEditDialogProps {
   onOpenChange: (open: boolean) => void
   onSave: (updates: Partial<Task>) => void
   onDelete?: () => void
+  columns?: ColumnConfig[]
+  currentColumnId?: string
+  onStatusChange?: (newColumnId: string) => void
 }
 
 const PRIORITIES: Task['priority'][] = ['low', 'medium', 'high', 'critical']
@@ -37,12 +40,16 @@ export function TaskEditDialog({
   onOpenChange,
   onSave,
   onDelete,
+  columns,
+  currentColumnId,
+  onStatusChange,
 }: TaskEditDialogProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<Task['priority']>('medium')
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState('')
+  const [status, setStatus] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
@@ -51,8 +58,15 @@ export function TaskEditDialog({
       setDescription(task.description)
       setPriority(task.priority)
       setTags([...task.tags])
+      setStatus(currentColumnId || '')
+    } else if (open) {
+      setTitle('')
+      setDescription('')
+      setPriority('medium')
+      setTags([])
+      setStatus(currentColumnId || '')
     }
-  }, [task])
+  }, [task, open, currentColumnId])
 
   function handleAddTag(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && newTag.trim()) {
@@ -79,6 +93,10 @@ export function TaskEditDialog({
         priority,
         tags,
       })
+      // Handle status change after save if column changed
+      if (task && status && currentColumnId && status !== currentColumnId) {
+        onStatusChange?.(status)
+      }
       onOpenChange(false)
     } finally {
       setIsSaving(false)
@@ -90,13 +108,13 @@ export function TaskEditDialog({
     onOpenChange(false)
   }
 
-  if (!task) return null
+  if (!open) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Edit Task</DialogTitle>
+          <DialogTitle className="text-foreground">{task ? 'Edit Task' : 'New Task'}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -150,6 +168,31 @@ export function TaskEditDialog({
             </Select>
           </div>
 
+          {/* Status (Column) - only show when editing existing task */}
+          {task && columns && columns.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-foreground">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  {columns.map((col) => (
+                    <SelectItem key={col.id} value={col.id}>
+                      <span className="flex items-center gap-2">
+                        <span 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: col.color }}
+                        />
+                        {col.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Tags */}
           <div className="space-y-2">
             <Label className="text-foreground">Tags</Label>
@@ -181,24 +224,28 @@ export function TaskEditDialog({
           </div>
 
           {/* Metadata */}
-          <div className="pt-2 border-t border-border">
-            <div className="flex gap-4 text-xs text-muted-foreground">
-              <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
-              <span>Updated: {new Date(task.updatedAt).toLocaleDateString()}</span>
+          {task && (
+            <div className="pt-2 border-t border-border">
+              <div className="flex gap-4 text-xs text-muted-foreground">
+                <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
+                <span>Updated: {new Date(task.updatedAt).toLocaleDateString()}</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <DialogFooter className="flex justify-between sm:justify-between">
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleDelete}
-            className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30"
-          >
-            Delete
-          </Button>
-          <div className="flex gap-2">
+          {task && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30"
+            >
+              Delete
+            </Button>
+          )}
+          <div className="flex gap-2 ml-auto">
             <Button
               type="button"
               variant="ghost"
@@ -211,7 +258,7 @@ export function TaskEditDialog({
               onClick={handleSave}
               disabled={!title.trim() || isSaving}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Saving...' : task ? 'Save Changes' : 'Create Task'}
             </Button>
           </div>
         </DialogFooter>

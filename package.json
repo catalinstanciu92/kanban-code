@@ -9,6 +9,7 @@
     "dev:all": "concurrently \"bun run dev\" \"bun run dev:server\"",
     "build": "tsc -b && vite build",
     "build:exec": "bun run build && bun build --compile ./server/index.ts --outfile kanban-app",
+    "init-db": "bun scripts/init-db.ts",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",

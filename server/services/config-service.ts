@@ -3,7 +3,7 @@ import { readFile, access, writeFile } from 'fs/promises'
 import { join } from 'path'
 import type { KanbanConfig, ColumnConfig } from '../types'
 
-const DEFAULT_CONFIG: KanbanConfig = {
+export const DEFAULT_CONFIG: KanbanConfig = {
   columns: [
     { id: 'todo', name: 'Todo', color: '#6366f1', file: 'todo.csv', order: 1 },
     { id: 'in-progress', name: 'In Progress', color: '#f59e0b', file: 'in-progress.csv', order: 2 },
@@ -23,7 +23,7 @@ const DEFAULT_CONFIG: KanbanConfig = {
 export class ConfigService {
   private configPath: string
 
-  constructor(dbPath: string) {
+  constructor(private dbPath: string) {
     this.configPath = join(dbPath, 'config.yaml')
   }
 
@@ -41,6 +41,31 @@ export class ConfigService {
       ...DEFAULT_CONFIG,
       ...parsed,
       columns: parsed.columns ?? DEFAULT_CONFIG.columns,
+      defaults: {
+        ...DEFAULT_CONFIG.defaults,
+        ...(parsed.defaults || {}),
+        file_watch: {
+          ...DEFAULT_CONFIG.defaults.file_watch,
+          ...(parsed.defaults?.file_watch || {}),
+        }
+      }
+    }
+  }
+
+  async ensureConfigExists(): Promise<void> {
+    try {
+      await access(this.configPath)
+    } catch {
+      await this.saveConfig(DEFAULT_CONFIG)
+    }
+  }
+
+  async configExists(): Promise<boolean> {
+    try {
+      await access(this.configPath)
+      return true
+    } catch {
+      return false
     }
   }
 
@@ -56,7 +81,7 @@ export class ConfigService {
     await this.saveConfig(config)
   }
 
-  private async saveConfig(config: KanbanConfig): Promise<void> {
+  async saveConfig(config: KanbanConfig): Promise<void> {
     const content = yaml.dump(config, { indent: 2 })
     await writeFile(this.configPath, content, 'utf-8')
   }

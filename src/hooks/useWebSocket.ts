@@ -27,7 +27,8 @@ export function useWebSocket(options: UseWebSocketOptions) {
     shouldReconnectRef.current = true
     
     function createConnection() {
-      const wsUrl = import.meta.env?.VITE_WS_URL ?? 'ws://localhost:7895/ws'
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const wsUrl = `${protocol}//${window.location.host}/ws`
       
       try {
         wsRef.current = new WebSocket(wsUrl)

@@ -1,22 +1,24 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../services/api'
 import { useWebSocket } from './useWebSocket'
-import type { TasksByColumn, CreateTaskInput, Task, ColumnConfig } from '../types'
+import type { TasksByColumn, CreateTaskInput, Task, ColumnConfig, KanbanConfig } from '../types'
 
 export function useTasks() {
   const [tasks, setTasks] = useState<TasksByColumn>({})
   const [columns, setColumns] = useState<ColumnConfig[]>([])
+  const [config, setConfig] = useState<KanbanConfig | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true)
-      const [config, taskData] = await Promise.all([
+      const [loadedConfig, taskData] = await Promise.all([
         api.fetchConfig(),
         api.fetchTasks(),
       ])
-      setColumns(config.columns)
+      setConfig(loadedConfig)
+      setColumns(loadedConfig.columns)
       setTasks(taskData)
       setError(null)
     } catch (err) {
@@ -100,15 +102,28 @@ export function useTasks() {
     }
   }
 
+  const updateConfig = async (newConfig: KanbanConfig) => {
+    try {
+      await api.updateConfig(newConfig)
+      setConfig(newConfig)
+      setColumns(newConfig.columns)
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to update config'))
+      throw err
+    }
+  }
+
   return {
     tasks,
     columns,
+    config,
     isLoading,
     error,
     addTask,
     moveTask,
     deleteTask,
     updateTask,
+    updateConfig,
     refresh: loadData,
   }
 }

@@ -1,12 +1,24 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { KanbanBoard } from './KanbanBoard'
+import type { KanbanConfig } from '../../types'
 
 describe('KanbanBoard', () => {
   const mockColumns = [
     { id: 'todo', name: 'Todo', color: '#6366f1', file: 'todo.csv', order: 1 },
     { id: 'done', name: 'Done', color: '#10b981', file: 'done.csv', order: 2 },
   ]
+
+  const mockConfig: KanbanConfig = {
+    columns: mockColumns,
+    defaults: {
+      priority_levels: ['low', 'medium', 'high', 'critical'],
+      file_watch: {
+        debounce_ms: 300,
+        ignore_patterns: ['*.tmp', '*.bak'],
+      },
+    },
+  }
 
   const mockTasks = {
     todo: [
@@ -19,6 +31,7 @@ describe('KanbanBoard', () => {
     render(
       <KanbanBoard
         columns={mockColumns}
+        config={mockConfig}
         tasks={mockTasks}
         onTaskMove={vi.fn()}
         onTaskCreate={vi.fn()}
@@ -34,6 +47,7 @@ describe('KanbanBoard', () => {
     render(
       <KanbanBoard
         columns={mockColumns}
+        config={mockConfig}
         tasks={mockTasks}
         onTaskMove={vi.fn()}
         onTaskCreate={vi.fn()}
@@ -48,6 +62,7 @@ describe('KanbanBoard', () => {
     render(
       <KanbanBoard
         columns={mockColumns}
+        config={mockConfig}
         tasks={mockTasks}
         onTaskMove={vi.fn()}
         onTaskCreate={vi.fn()}

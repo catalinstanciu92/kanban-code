@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Task } from '../../types'
+import type { Task, ColumnConfig } from '../../types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Trash2, GripVertical, Pencil } from 'lucide-react'
@@ -10,8 +10,10 @@ import { TaskEditDialog } from '../TaskEditDialog/TaskEditDialog'
 interface TaskCardProps {
   task: Task
   columnId: string
+  columns?: ColumnConfig[]
   onDelete: () => void
   onUpdate?: (updates: Partial<Task>) => void
+  onStatusChange?: (newColumnId: string) => void
 }
 
 const PRIORITY_STYLES: Record<Task['priority'], { badge: string; border: string }> = {
@@ -33,7 +35,7 @@ const PRIORITY_STYLES: Record<Task['priority'], { badge: string; border: string 
   },
 }
 
-function TaskCard({ task, columnId, onDelete, onUpdate }: TaskCardProps) {
+function TaskCard({ task, columnId, columns, onDelete, onUpdate, onStatusChange }: TaskCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false)
   
   const {
@@ -156,6 +158,9 @@ function TaskCard({ task, columnId, onDelete, onUpdate }: TaskCardProps) {
         onOpenChange={setIsEditOpen}
         onSave={(updates) => onUpdate?.(updates)}
         onDelete={onDelete}
+        columns={columns}
+        currentColumnId={columnId}
+        onStatusChange={onStatusChange}
       />
     </>
   )

@@ -2,42 +2,36 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import TaskCard from '../TaskCard/TaskCard'
 import type { ColumnConfig, Task } from '../../types'
-import { Plus, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { TaskEditDialog } from '../TaskEditDialog/TaskEditDialog'
 
 interface ColumnProps {
   config: ColumnConfig
   tasks: Task[]
-  onTaskCreate: (title: string) => void
+  allColumns?: ColumnConfig[]
+  onTaskCreate: (title: string, description: string, priority: Task['priority'], tags: string[]) => void
   onTaskDelete: (taskId: string) => void
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => void
+  onTaskMove?: (taskId: string, toColumnId: string) => void
 }
 
-export function Column({ config, tasks, onTaskCreate, onTaskDelete, onTaskUpdate }: ColumnProps) {
-  const [isAdding, setIsAdding] = useState(false)
-  const [newTaskTitle, setNewTaskTitle] = useState('')
+export function Column({ config, tasks, allColumns, onTaskCreate, onTaskDelete, onTaskUpdate, onTaskMove }: ColumnProps) {
+  const [isCreating, setIsCreating] = useState(false)
 
   const { setNodeRef, isOver } = useDroppable({
     id: config.id,
   })
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (newTaskTitle.trim()) {
-      onTaskCreate(newTaskTitle.trim())
-      setNewTaskTitle('')
-      setIsAdding(false)
-    }
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') {
-      setIsAdding(false)
-      setNewTaskTitle('')
-    }
+  function handleCreateTask(updates: Partial<Task>) {
+    onTaskCreate(
+      updates.title || '',
+      updates.description || '',
+      updates.priority || 'medium',
+      updates.tags || []
+    )
   }
 
   return (
@@ -64,7 +58,7 @@ export function Column({ config, tasks, onTaskCreate, onTaskDelete, onTaskUpdate
           variant="ghost"
           size="icon"
           className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
-          onClick={() => setIsAdding(true)}
+          onClick={() => setIsCreating(true)}
           title="Add Task"
         >
           <Plus size={16} />
@@ -81,58 +75,39 @@ export function Column({ config, tasks, onTaskCreate, onTaskDelete, onTaskUpdate
                   key={task.id}
                   task={task}
                   columnId={config.id}
+                  columns={allColumns}
                   onDelete={() => onTaskDelete(task.id)}
                   onUpdate={(updates) => onTaskUpdate?.(task.id, updates)}
+                  onStatusChange={(newColumnId) => onTaskMove?.(task.id, newColumnId)}
                 />
               ))}
             </div>
           </SortableContext>
 
-          {/* Add Task Form */}
-          {isAdding && (
-            <form 
-              className="mt-2 p-3 bg-muted/50 rounded-lg border border-border space-y-2" 
-              onSubmit={handleSubmit}
-              onKeyDown={handleKeyDown}
-            >
-              <Input
-                autoFocus
-                type="text"
-                placeholder="Enter task title..."
-                value={newTaskTitle}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.target.value)}
-                className="bg-background border-border"
-              />
-              <div className="flex gap-2">
-                <Button type="submit" size="sm" className="flex-1">
-                  Add Task
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => {
-                    setIsAdding(false)
-                    setNewTaskTitle('')
-                  }}
-                >
-                  <X size={16} />
-                </Button>
-              </div>
-            </form>
-          )}
-
           {/* Empty state */}
-          {tasks.length === 0 && !isAdding && (
+          {tasks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mb-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mb-2 hover:bg-muted"
+                onClick={() => setIsCreating(true)}
+                title="Add Task"
+              >
                 <Plus size={18} className="text-muted-foreground" />
-              </div>
+              </Button>
               <p className="text-xs text-muted-foreground">No tasks yet</p>
             </div>
           )}
         </div>
       </ScrollArea>
+
+      <TaskEditDialog
+        task={null}
+        open={isCreating}
+        onOpenChange={setIsCreating}
+        onSave={handleCreateTask}
+      />
     </div>
   )
 }

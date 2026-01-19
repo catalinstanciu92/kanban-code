@@ -58,4 +58,13 @@ export const api = {
       throw new Error(`Failed to move task: ${response.status}`)
     }
   },
+
+  async updateConfig(config: KanbanConfig): Promise<void> {
+    const response = await fetch(`${API_BASE}/config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    })
+    return handleResponse(response)
+  },
 }
