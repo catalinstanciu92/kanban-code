@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://127.0.0.1:24125',
     trace: 'on-first-retry',
   },
   projects: [
@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'bun run dev:all',
-    url: 'http://127.0.0.1:5173',
+    url: 'http://127.0.0.1:24125',
     reuseExistingServer: false,
   },
 });
