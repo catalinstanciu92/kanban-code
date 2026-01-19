@@ -87,4 +87,24 @@ export class CsvService {
     await this.deleteTask(sourceFile, taskId)
     await this.writeTask(targetFile, task)
   }
+
+  async updateTask(filename: string, taskId: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Task | null> {
+    const tasks = await this.readTasks(filename)
+    const taskIndex = tasks.findIndex(t => t.id === taskId)
+    
+    if (taskIndex === -1) {
+      return null
+    }
+
+    const updatedTask: Task = {
+      ...tasks[taskIndex],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    }
+
+    tasks[taskIndex] = updatedTask
+    await this.writeTasks(filename, tasks)
+    
+    return updatedTask
+  }
 }

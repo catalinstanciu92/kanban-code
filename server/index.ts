@@ -4,7 +4,7 @@ import { ConfigService } from './services/config-service'
 import type { ServerWebSocket } from 'bun'
 
 const DB_PATH = process.env.DB_PATH ?? './db'
-const PORT = Number(process.env.PORT ?? 3001)
+const PORT = Number(process.env.PORT ?? 7895)
 
 const csvService = new CsvService(DB_PATH)
 const configService = new ConfigService(DB_PATH)
@@ -117,6 +117,32 @@ const server = Bun.serve({
         
         await csvService.moveTask(taskId, fromColumn.file, toColumn.file)
         return Response.json({ success: true }, { headers })
+      }
+      
+      // Update task
+      if (url.pathname.match(/^\/api\/tasks\/[\w-]+$/) && req.method === 'PUT') {
+        const taskId = url.pathname.split('/')[3]
+        const body = await req.json()
+        const columnId = body.columnId
+        const config = await configService.loadConfig()
+        const column = config.columns.find(c => c.id === columnId)
+        
+        if (!column) {
+          return Response.json({ error: 'Column not found' }, { status: 404, headers })
+        }
+        
+        const updatedTask = await csvService.updateTask(column.file, taskId, {
+          title: body.title,
+          description: body.description,
+          priority: body.priority,
+          tags: body.tags,
+        })
+        
+        if (!updatedTask) {
+          return Response.json({ error: 'Task not found' }, { status: 404, headers })
+        }
+        
+        return Response.json(updatedTask, { headers })
       }
       
       if (url.pathname.match(/^\/api\/tasks\/[\w-]+$/) && req.method === 'DELETE') {
