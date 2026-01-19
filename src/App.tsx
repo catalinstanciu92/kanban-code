@@ -1,34 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import KanbanBoard from './components/KanbanBoard/KanbanBoard'
+import { useTasks } from './hooks/useTasks'
+import { useWebSocket } from './hooks/useWebSocket'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    tasks,
+    columns,
+    isLoading,
+    error,
+    addTask,
+    moveTask,
+    deleteTask,
+    updateTask,
+    refresh,
+  } = useTasks()
+
+  const { isConnected } = useWebSocket({
+    onMessage: (message) => {
+      if (message.type === 'FILE_CHANGE') {
+        refresh()
+      }
+    },
+  })
+
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loader"></div>
+        <p>Loading KanbanBoard...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="error-screen">
+        <h2>Failed to load board</h2>
+        <p>{error.message}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <KanbanBoard
+      columns={columns}
+      tasks={tasks}
+      onTaskCreate={(columnId, title) => addTask({ columnId, title })}
+      onTaskMove={moveTask}
+      onTaskDelete={deleteTask}
+      onTaskUpdate={(taskId, updates) => {
+        // Find which column the task belongs to
+        const columnId = Object.keys(tasks).find((key) =>
+          tasks[key].some((t) => t.id === taskId)
+        )
+        if (columnId) {
+          updateTask(taskId, columnId, updates)
+        }
+      }}
+      isConnected={isConnected}
+    />
   )
 }
 
