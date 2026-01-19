@@ -158,6 +158,17 @@ const server = Bun.serve({
         await csvService.deleteTask(column.file, taskId)
         return new Response(null, { status: 204, headers })
       }
+
+      // Serve static files for frontend
+      if (!url.pathname.startsWith('/api') && !url.pathname.startsWith('/ws')) {
+        let filePath = url.pathname === '/' ? '/index.html' : url.pathname
+        const file = Bun.file(`./dist${filePath}`)
+        if (await file.exists()) {
+          return new Response(file)
+        }
+        // Fallback to index.html for SPA routing
+        return new Response(Bun.file('./dist/index.html'))
+      }
       
       return Response.json({ error: 'Not Found' }, { status: 404, headers })
     } catch (error) {
