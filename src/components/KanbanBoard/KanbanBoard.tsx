@@ -1,4 +1,5 @@
-import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { Column } from '../Column/Column'
 import type { ColumnConfig, Task, TasksByColumn } from '../../types'
 import './KanbanBoard.css'
