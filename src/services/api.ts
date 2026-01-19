@@ -1,6 +1,6 @@
 import type { KanbanConfig, Task, TasksByColumn, CreateTaskInput } from '../types'
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL ?? 'http://localhost:3001/api'
+const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:7895/api'
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -30,11 +30,11 @@ export const api = {
     return handleResponse(response)
   },
 
-  async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+  async updateTask(id: string, columnId: string, updates: Partial<Task>): Promise<Task> {
     const response = await fetch(`${API_BASE}/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
+      body: JSON.stringify({ ...updates, columnId }),
     })
     return handleResponse(response)
   },

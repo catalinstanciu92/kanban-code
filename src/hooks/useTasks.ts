@@ -30,7 +30,7 @@ export function useTasks() {
     loadData()
   }, [loadData])
 
-  const onWebSocketMessage = useCallback((message: any) => {
+  const onWebSocketMessage = useCallback((message: { type: string; payload?: unknown }) => {
     if (message.type === 'FILE_CHANGE') {
       loadData()
     }
@@ -88,7 +88,7 @@ export function useTasks() {
 
   const updateTask = async (taskId: string, columnId: string, updates: Partial<Task>) => {
     try {
-      const updatedTask = await api.updateTask(taskId, updates)
+      const updatedTask = await api.updateTask(taskId, columnId, updates)
       setTasks(prev => ({
         ...prev,
         [columnId]: prev[columnId].map(t => t.id === taskId ? updatedTask : t),
