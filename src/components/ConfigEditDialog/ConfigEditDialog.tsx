@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { KanbanConfig, ColumnConfig } from '../../types'
+import type { DragEndEvent } from '@dnd-kit/core'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Trash2, Plus, GripVertical } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 interface ConfigEditDialogProps {
   config: KanbanConfig | null
@@ -58,6 +61,21 @@ export function ConfigEditDialog({
     setColumns(newColumns)
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    
+    if (!over || active.id === over.id) {
+      return
+    }
+    
+    const oldIndex = columns.findIndex(col => col.id === active.id)
+    const newIndex = columns.findIndex(col => col.id === over.id)
+    
+    if (oldIndex !== -1 && newIndex !== -1) {
+      setColumns(arrayMove(columns, oldIndex, newIndex))
+    }
+  }
+
   function handleSave() {
     if (!config) return
     setIsSaving(true)
@@ -82,47 +100,51 @@ export function ConfigEditDialog({
         
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-[50vh] pr-4">
-            <div className="space-y-3">
-              {columns.map((column, index) => (
-                <div key={column.id} className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg border border-border">
-                  <GripVertical size={16} className="text-muted-foreground cursor-move" />
-                  
-                  <div className="flex-1 space-y-2">
-                    <div>
-                      <Label htmlFor={`col-name-${index}`} className="text-xs text-muted-foreground">Name</Label>
-                      <Input
-                        id={`col-name-${index}`}
-                        value={column.name}
-                        onChange={(e) => handleColumnChange(index, 'name', e.target.value)}
-                        className="bg-background border-border h-8"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`col-color-${index}`} className="text-xs text-muted-foreground">Color</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id={`col-color-${index}`}
-                          type="color"
-                          value={column.color}
-                          onChange={(e) => handleColumnChange(index, 'color', e.target.value)}
-                          className="w-12 h-8 p-1 bg-background border-border cursor-pointer"
-                        />
-                        <span className="text-xs text-muted-foreground font-mono">{column.color}</span>
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={columns.map(col => col.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {columns.map((column, index) => (
+                    <div key={column.id} className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg border border-border">
+                      <GripVertical size={16} className="text-muted-foreground cursor-move" />
+                      
+                      <div className="flex-1 space-y-2">
+                        <div>
+                          <Label htmlFor={`col-name-${index}`} className="text-xs text-muted-foreground">Name</Label>
+                          <Input
+                            id={`col-name-${index}`}
+                            value={column.name}
+                            onChange={(e) => handleColumnChange(index, 'name', e.target.value)}
+                            className="bg-background border-border h-8"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`col-color-${index}`} className="text-xs text-muted-foreground">Color</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              id={`col-color-${index}`}
+                              type="color"
+                              value={column.color}
+                              onChange={(e) => handleColumnChange(index, 'color', e.target.value)}
+                              className="w-12 h-8 p-1 bg-background border-border cursor-pointer"
+                            />
+                            <span className="text-xs text-muted-foreground font-mono">{column.color}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveColumn(index)}
-                    className="flex-shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveColumn(index)}
+                        className="flex-shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           </ScrollArea>
         </div>
 
