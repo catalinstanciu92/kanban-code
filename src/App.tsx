@@ -1,34 +1,94 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import KanbanBoard from './components/KanbanBoard/KanbanBoard'
+import InitializationOverlay from './components/InitializationOverlay'
+import { useTasks } from './hooks/useTasks'
+import { useWebSocket } from './hooks/useWebSocket'
+import type { Task, KanbanConfig } from './types'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isReady, setIsReady] = useState(false)
+  const {
+    tasks,
+    columns,
+    config,
+    isLoading,
+    error,
+    addTask,
+    moveTask,
+    deleteTask,
+    updateTask,
+    updateConfig,
+    refresh,
+  } = useTasks()
+
+  const { isConnected } = useWebSocket({
+    onMessage: (message) => {
+      if (message.type === 'FILE_CHANGE') {
+        refresh()
+      }
+    },
+  })
+
+  if (!isReady) {
+    return <InitializationOverlay onInitialized={() => setIsReady(true)} />
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground text-sm">Loading board...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4 max-w-md text-center p-8">
+          <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+            <span className="text-red-400 text-xl">!</span>
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Failed to load board</h2>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const handleTaskUpdate = (taskId: string, columnId: string, updates: Partial<Task>) => {
+    updateTask(taskId, columnId, updates)
+  }
+
+  const handleTaskCreate = (columnId: string, title: string, description: string, priority: Task['priority'], tags: string[]) => {
+    addTask({ columnId, title, description, priority, tags })
+  }
+
+  const handleConfigSave = async (newConfig: KanbanConfig) => {
+    await updateConfig(newConfig)
+    refresh()
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <KanbanBoard
+      columns={columns}
+      config={config!}
+      tasks={tasks}
+      onTaskCreate={handleTaskCreate}
+      onTaskMove={moveTask}
+      onTaskDelete={deleteTask}
+      onTaskUpdate={handleTaskUpdate}
+      onConfigSave={handleConfigSave}
+      isConnected={isConnected}
+    />
   )
 }
 

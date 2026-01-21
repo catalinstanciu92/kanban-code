@@ -13,6 +13,24 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+  server: {
+    port: 24125,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:7895',
+        changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://localhost:7895',
+        ws: true,
+      },
+    },
+  },
+  preview: {
+    port: 24125,
+    strictPort: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
