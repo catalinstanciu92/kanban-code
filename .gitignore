@@ -26,3 +26,11 @@ dist-ssr
 # Database
 db/
 .kanban-code/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+test-results/
