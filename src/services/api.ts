@@ -1,4 +1,4 @@
-import type { KanbanConfig, Task, TasksByColumn, CreateTaskInput } from '../types'
+import type { KanbanConfig, Task, TasksByColumn, CreateTaskInput, Agent, CreateAgentInput, UpdateAgentInput } from '../types'
 
 const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:7895/api'
 
@@ -66,5 +66,54 @@ export const api = {
       body: JSON.stringify(config),
     })
     return handleResponse(response)
+  },
+
+  async checkAgentsInitStatus(): Promise<{ initialized: boolean; path: string }> {
+    const response = await fetch(`${API_BASE}/agents/init-status`)
+    return handleResponse(response)
+  },
+
+  async initializeAgentsFolder(): Promise<{ success: boolean }> {
+    const response = await fetch(`${API_BASE}/agents/initialize`, {
+      method: 'POST',
+    })
+    return handleResponse(response)
+  },
+
+  async fetchAgents(): Promise<Agent[]> {
+    const response = await fetch(`${API_BASE}/agents`)
+    return handleResponse(response)
+  },
+
+  async fetchAgent(name: string): Promise<Agent> {
+    const response = await fetch(`${API_BASE}/agents/${name}`)
+    return handleResponse(response)
+  },
+
+  async createAgent(input: CreateAgentInput): Promise<Agent> {
+    const response = await fetch(`${API_BASE}/agents`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    return handleResponse(response)
+  },
+
+  async updateAgent(name: string, updates: UpdateAgentInput): Promise<Agent> {
+    const response = await fetch(`${API_BASE}/agents/${name}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    })
+    return handleResponse(response)
+  },
+
+  async deleteAgent(name: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/agents/${name}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to delete agent: ${response.status}`)
+    }
   },
 }

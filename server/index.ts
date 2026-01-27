@@ -1,10 +1,12 @@
 import { mkdir, access } from 'fs/promises'
 import { CsvService } from './services/csv-service'
 import { ConfigService, DEFAULT_CONFIG } from './services/config-service'
+import { AgentService } from './services/agent-service'
 import { createFileWatcher } from './services/file-watcher'
 import type { ServerWebSocket } from 'bun'
 
 const DB_PATH = process.env.DB_PATH ?? './.kanban-code'
+const AGENTS_PATH = process.env.AGENTS_PATH ?? '.opencode/agents'
 const PORT = Number(process.env.PORT ?? 7895)
 const PWD = process.cwd()
 
@@ -31,6 +33,7 @@ async function checkInitialization() {
 const clients = new Set<ServerWebSocket<unknown>>()
 const csvService = new CsvService(DB_PATH)
 const configService = new ConfigService(DB_PATH)
+const agentService = new AgentService(AGENTS_PATH)
 
 // Initial check
 checkInitialization()
@@ -195,6 +198,55 @@ const server = Bun.serve({
         const column = config.columns.find(c => c.id === columnId)
         if (!column) return Response.json({ error: 'Column not found' }, { status: 404, headers })
         await csvService.deleteTask(column.file, taskId)
+        return new Response(null, { status: 204, headers })
+      }
+
+      // Agents API
+      if (url.pathname === '/api/agents/init-status') {
+        const exists = await agentService.folderExists()
+        return Response.json({ initialized: exists, path: AGENTS_PATH }, { headers })
+      }
+
+      if (url.pathname === '/api/agents/initialize' && req.method === 'POST') {
+        try {
+          await agentService.ensureFolder()
+          return Response.json({ success: true }, { headers })
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Unknown error'
+          return Response.json({ error: message }, { status: 500, headers })
+        }
+      }
+
+      if (url.pathname === '/api/agents' && req.method === 'GET') {
+        const agents = await agentService.listAgents()
+        return Response.json(agents, { headers })
+      }
+
+      if (url.pathname === '/api/agents' && req.method === 'POST') {
+        const body = await req.json()
+        const agent = await agentService.createAgent(body)
+        return Response.json(agent, { status: 201, headers })
+      }
+
+      if (url.pathname.match(/^\/api\/agents\/[\w-]+$/) && req.method === 'GET') {
+        const name = url.pathname.split('/')[3]
+        const agent = await agentService.getAgent(name)
+        if (!agent) return Response.json({ error: 'Agent not found' }, { status: 404, headers })
+        return Response.json(agent, { headers })
+      }
+
+      if (url.pathname.match(/^\/api\/agents\/[\w-]+$/) && req.method === 'PUT') {
+        const name = url.pathname.split('/')[3]
+        const body = await req.json()
+        const agent = await agentService.updateAgent(name, body)
+        if (!agent) return Response.json({ error: 'Agent not found' }, { status: 404, headers })
+        return Response.json(agent, { headers })
+      }
+
+      if (url.pathname.match(/^\/api\/agents\/[\w-]+$/) && req.method === 'DELETE') {
+        const name = url.pathname.split('/')[3]
+        const success = await agentService.deleteAgent(name)
+        if (!success) return Response.json({ error: 'Agent not found' }, { status: 404, headers })
         return new Response(null, { status: 204, headers })
       }
 

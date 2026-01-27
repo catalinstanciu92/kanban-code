@@ -36,3 +36,29 @@ export interface CreateTaskInput {
   columnId: string
   tags?: string[]
 }
+
+export interface AgentTools {
+  read?: boolean
+  write?: boolean
+  edit?: boolean
+  bash?: boolean
+  grep?: boolean
+  glob?: boolean
+  lsp?: boolean
+}
+
+export interface Agent {
+  name: string
+  description: string
+  mode: 'subagent' | 'agent'
+  temperature: number
+  model: string
+  tools: AgentTools
+  body: string
+}
+
+export interface CreateAgentInput extends Omit<Agent, 'name'> {
+  name: string
+}
+
+export type UpdateAgentInput = Partial<Omit<Agent, 'name'>>
