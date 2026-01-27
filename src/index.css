@@ -139,3 +139,22 @@
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.45 0.01 260);
 }
+
+/* Mobile touch enhancements */
+@media (max-width: 640px) {
+  /* Better touch targets */
+  button, input, textarea, select {
+    min-height: 44px; /* iOS recommended minimum touch target */
+    min-width: 44px;
+  }
+  
+  /* Improve horizontal scrolling experience on mobile */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better focus indicators for mobile */
+  *:focus-visible {
+    outline-offset: 2px;
+  }
+}

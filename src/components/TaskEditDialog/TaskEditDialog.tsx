@@ -112,7 +112,7 @@ export function TaskEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-border">
+      <DialogContent className="sm:max-w-lg bg-card border-border w-full max-w-full sm:max-w-[95vw] md:max-w-lg mx-2">
         <DialogHeader>
           <DialogTitle className="text-foreground">{task ? 'Edit Task' : 'New Task'}</DialogTitle>
         </DialogHeader>
@@ -234,22 +234,23 @@ export function TaskEditDialog({
           )}
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
+        <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
           {task && (
             <Button
               type="button"
               variant="destructive"
               onClick={handleDelete}
-              className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30"
+              className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 w-full sm:w-auto"
             >
               Delete
             </Button>
           )}
-          <div className="flex gap-2 ml-auto">
+          <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
             <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
+              className="flex-1 sm:flex-none"
             >
               Cancel
             </Button>
@@ -257,6 +258,7 @@ export function TaskEditDialog({
               type="button"
               onClick={handleSave}
               disabled={!title.trim() || isSaving}
+              className="flex-1 sm:flex-none"
             >
               {isSaving ? 'Saving...' : task ? 'Save Changes' : 'Create Task'}
             </Button>

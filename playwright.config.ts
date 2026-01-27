@@ -20,6 +20,6 @@ export default defineConfig({
   webServer: {
     command: 'bun run dev:all',
     url: 'http://127.0.0.1:24125',
-    reuseExistingServer: false,
+    reuseExistingServer: true,  // Use existing server
   },
 });
