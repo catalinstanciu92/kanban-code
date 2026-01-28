@@ -52,31 +52,31 @@ export function KanbanBoard({
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="flex-shrink-0 px-6 py-4 bg-card border-b border-border">
+      <header className="flex-shrink-0 px-3 py-3 bg-card border-b border-border sm:px-6 sm:py-4">
         <div className="flex items-center justify-between max-w-full">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <div className="w-4 h-4 rounded-sm bg-primary" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center sm:w-8 sm:h-8">
+              <div className="w-3 h-3 rounded-sm bg-primary sm:w-4 sm:h-4" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
+            <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
               KanbanCode
             </h1>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {onConfigSave && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsConfigDialogOpen(true)}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground text-xs sm:text-sm p-2 sm:p-3"
               >
-                <Settings size={16} className="mr-2" />
+                <Settings size={14} className="mr-1 sm:mr-2 sm:size-16" />
                 Config
               </Button>
             )}
             <div
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-colors sm:text-xs sm:gap-2 sm:px-3 sm:py-1.5 ${
                 isConnected 
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
                   : 'bg-red-500/10 text-red-400 border border-red-500/20'
@@ -85,13 +85,15 @@ export function KanbanBoard({
             >
               {isConnected ? (
                 <>
-                  <Wifi size={14} />
-                  <span>Live</span>
+                  <Wifi size={12} className="sm:size-14" />
+                  <span className="hidden sm:inline">Live</span>
+                  <span className="sm:hidden">L</span>
                 </>
               ) : (
                 <>
-                  <WifiOff size={14} />
-                  <span>Offline</span>
+                  <WifiOff size={12} className="sm:size-14" />
+                  <span className="hidden sm:inline">Offline</span>
+                  <span className="sm:hidden">O</span>
                 </>
               )}
             </div>
@@ -101,8 +103,8 @@ export function KanbanBoard({
       
       {/* Columns Container */}
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="flex-1 overflow-x-auto overflow-y-hidden">
-          <div className="flex gap-4 p-6 h-full min-w-max">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden touch-pan-x">
+          <div className="flex gap-3 p-3 h-full min-w-max sm:p-6">
             {sortedColumns.map((column) => (
               <Column
                 key={column.id}

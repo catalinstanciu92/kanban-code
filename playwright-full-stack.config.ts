@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:24125',
+    baseURL: 'http://localhost:3001', // Using the dev server
     trace: 'on-first-retry',
   },
   projects: [
@@ -17,9 +17,5 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'bun run dev:all',
-    url: 'http://127.0.0.1:24125',
-    reuseExistingServer: true,  // Use existing server
-  },
+  // No web server specified - we're running it separately
 });

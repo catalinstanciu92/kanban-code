@@ -93,7 +93,7 @@ export function ConfigEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl bg-card border-border max-h-[80vh] flex flex-col">
+      <DialogContent className="bg-card border-border max-h-[90vh] flex flex-col w-full max-w-full sm:max-w-[95vw] md:max-w-2xl mx-2">
         <DialogHeader>
           <DialogTitle className="text-foreground">Edit Board Configuration</DialogTitle>
         </DialogHeader>
@@ -158,11 +158,12 @@ export function ConfigEditDialog({
             Add Column
           </Button>
 
-          <DialogFooter className="flex gap-2 sm:gap-2">
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-2">
             <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
@@ -170,6 +171,7 @@ export function ConfigEditDialog({
               type="button"
               onClick={handleSave}
               disabled={isSaving || columns.length === 0}
+              className="w-full sm:w-auto"
             >
               {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>

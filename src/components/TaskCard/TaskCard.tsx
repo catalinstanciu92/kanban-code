@@ -74,9 +74,9 @@ function TaskCard({ task, columnId, columns, onDelete, onUpdate, onStatusChange 
         <div
           {...attributes}
           {...listeners}
-          className="absolute left-1 top-1/2 -translate-y-1/2 p-1 cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute left-1 top-1/2 -translate-y-1/2 p-2 cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity sm:p-1"
         >
-          <GripVertical size={14} />
+          <GripVertical size={16} className="sm:size-[14px]" />
         </div>
 
         {/* Header with Priority and Actions */}
@@ -92,26 +92,26 @@ function TaskCard({ task, columnId, columns, onDelete, onUpdate, onStatusChange 
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted sm:h-6 sm:w-6"
               onClick={(e) => {
                 e.stopPropagation()
                 setIsEditOpen(true)
               }}
               title="Edit task"
             >
-              <Pencil size={12} />
+              <Pencil size={14} className="sm:size-[12px]" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+              className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 sm:h-6 sm:w-6"
               onClick={(e) => {
                 e.stopPropagation()
                 onDelete()
               }}
               title="Delete task"
             >
-              <Trash2 size={12} />
+              <Trash2 size={14} className="sm:size-[12px]" />
             </Button>
           </div>
         </div>

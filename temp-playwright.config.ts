@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:24125',
+    // Remove the specific base URL to allow direct navigation
     trace: 'on-first-retry',
   },
   projects: [
@@ -17,9 +17,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'bun run dev:all',
-    url: 'http://127.0.0.1:24125',
-    reuseExistingServer: true,  // Use existing server
-  },
+  // Comment out web server for now to avoid port conflicts
+  // webServer: {
+  //   command: 'bun run dev:all',
+  //   url: 'http://127.0.0.1:24125',
+  //   reuseExistingServer: true,
+  // },
 });

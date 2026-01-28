@@ -36,7 +36,7 @@ export function Column({ config, tasks, allColumns, onTaskCreate, onTaskDelete, 
 
   return (
     <div 
-      className={`flex flex-col w-80 min-w-80 bg-card rounded-xl border border-border transition-all duration-200 ${
+      className={`flex flex-col w-full md:w-80 min-w-[280px] max-w-full bg-card rounded-xl border border-border transition-all duration-200 ${
         isOver ? 'ring-2 ring-primary/50 border-primary/30' : ''
       }`}
       data-testid={`column-${config.id}`}

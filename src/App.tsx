@@ -94,15 +94,15 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 sm:pb-0">
       <header className="border-b">
-        <div className="flex items-center justify-between px-6 py-3 max-w-9xl mx-auto">
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl font-semibold">Kanban</h1>
+        <div className="flex items-center justify-between px-3 py-2 max-w-9xl mx-auto sm:px-6 sm:py-3">
+          <div className="flex items-center gap-2 sm:gap-6">
+            <h1 className="text-lg font-semibold sm:text-xl">Kanban</h1>
             <nav className="flex gap-1">
               <button
                 onClick={() => setActiveTab("board")}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-2 py-1.5 text-xs font-medium rounded-md transition-colors sm:px-4 sm:py-2 sm:text-sm ${
                   activeTab === "board"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -112,7 +112,7 @@ function App() {
               </button>
               <button
                 onClick={() => setActiveTab("agents")}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-2 py-1.5 text-xs font-medium rounded-md transition-colors sm:px-4 sm:py-2 sm:text-sm ${
                   activeTab === "agents"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -122,17 +122,17 @@ function App() {
               </button>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <div
               className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground sm:text-xs">
               {isConnected ? "Connected" : "Disconnected"}
             </span>
           </div>
         </div>
       </header>
-      <main className="max-w-9xl mx-auto">
+      <main className="max-w-9xl mx-auto pb-4">
         {activeTab === "board" ? (
           <KanbanBoard
             columns={columns}
