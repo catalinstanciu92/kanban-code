@@ -140,7 +140,395 @@
   background: oklch(0.45 0.01 260);
 }
 
-/* Mobile touch enhancements */
+/* ============================================
+   GLOBAL ANIMATIONS & MICRO-INTERACTIONS
+   Inspired by Linear and modern productivity apps
+   ============================================ */
+
+/* Page Transition - Fade In */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger Animation for Lists */
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card Entry Animation */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card Exit Animation */
+@keyframes card-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Pulse Animation for Live Indicators */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Slide In from Bottom (Modals) */
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 20px)) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Slide Out to Bottom (Modals) */
+@keyframes slide-out-bottom {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 20px)) scale(0.96);
+  }
+}
+
+/* Overlay Fade */
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Shimmer Loading Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Spinner Animation */
+@keyframes spin-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bounce Subtle */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Scale Press Effect */
+@keyframes press-down {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Glow Pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--glow-color, var(--primary)), 0 0 10px var(--glow-color, var(--primary));
+  }
+  50% {
+    box-shadow: 0 0 15px var(--glow-color, var(--primary)), 0 0 25px var(--glow-color, var(--primary));
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-stagger-in {
+  animation: stagger-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--stagger-delay, 0ms);
+}
+
+.animate-card-enter {
+  animation: card-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-card-exit {
+  animation: card-exit 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.25 0.01 260) 25%,
+    oklch(0.35 0.01 260) 50%,
+    oklch(0.25 0.01 260) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.animate-spin-gradient {
+  animation: spin-gradient 1s linear infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.animate-press {
+  animation: press-down 0.2s ease-out;
+}
+
+/* Hover Micro-interactions */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.4);
+}
+
+.hover-scale {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-press:active {
+  transform: scale(0.96);
+}
+
+/* Icon Color Transition */
+.icon-transition {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.icon-transition:hover {
+  transform: scale(1.1);
+}
+
+/* Link Underline Animation */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: oklch(0.2 0.01 260);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.3 0.01 260) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Drag Preview Enhancement */
+.drag-preview {
+  transform: scale(1.02) rotate(1deg);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  opacity: 0.9;
+}
+
+/* Smooth Height Transition for Columns */
+.smooth-height {
+  transition: min-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Focus Ring Animation */
+.focus-ring-animate {
+  transition: box-shadow 0.2s ease, outline 0.2s ease;
+}
+
+.focus-ring-animate:focus-visible {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+
+/* Button Ripple Effect Container */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), 
+    rgba(255, 255, 255, 0.3) 0%, 
+    transparent 60%);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.btn-ripple:active::before {
+  opacity: 1;
+  transform: scale(2);
+  transition: opacity 0.1s ease, transform 0s;
+}
+
+/* Stagger children animation helper */
+.stagger-children > * {
+  opacity: 0;
+  animation: stagger-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 450ms; }
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-fade-in,
+  .animate-stagger-in,
+  .animate-card-enter,
+  .animate-card-exit,
+  .animate-pulse-soft,
+  .animate-shimmer,
+  .animate-spin-gradient,
+  .animate-bounce-subtle,
+  .animate-press {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  
+  .skeleton::after {
+    animation: none !important;
+  }
+  
+  .stagger-children > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   MOBILE ENHANCEMENTS
+   ============================================ */
+
 @media (max-width: 640px) {
   /* Better touch targets */
   button, input, textarea, select {
@@ -156,5 +544,10 @@
   /* Better focus indicators for mobile */
   *:focus-visible {
     outline-offset: 2px;
+  }
+  
+  /* Reduce animation complexity on mobile for performance */
+  .hover-lift:hover {
+    transform: translateY(-1px);
   }
 }

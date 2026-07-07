@@ -2,8 +2,8 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import TaskCard from '../TaskCard/TaskCard'
 import type { ColumnConfig, Task } from '../../types'
-import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { Plus, ClipboardList } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TaskEditDialog } from '../TaskEditDialog/TaskEditDialog'
@@ -18,12 +18,24 @@ interface ColumnProps {
   onTaskMove?: (taskId: string, toColumnId: string) => void
 }
 
+// Get color accent based on column name/type
+function getColumnAccent(columnName: string): string {
+  const name = columnName.toLowerCase()
+  if (name.includes('todo') || name.includes('backlog')) return 'var(--info)'
+  if (name.includes('progress') || name.includes('doing')) return 'oklch(0.75 0.15 75)'
+  if (name.includes('test') || name.includes('review')) return 'oklch(0.7 0.18 300)'
+  if (name.includes('done') || name.includes('complete')) return 'var(--success)'
+  return 'var(--accent)'
+}
+
 export function Column({ config, tasks, allColumns, onTaskCreate, onTaskDelete, onTaskUpdate, onTaskMove }: ColumnProps) {
   const [isCreating, setIsCreating] = useState(false)
 
   const { setNodeRef, isOver } = useDroppable({
     id: config.id,
   })
+
+  const accentColor = useMemo(() => getColumnAccent(config.name), [config.name])
 
   function handleCreateTask(updates: Partial<Task>) {
     onTaskCreate(
@@ -35,41 +47,72 @@ export function Column({ config, tasks, allColumns, onTaskCreate, onTaskDelete, 
   }
 
   return (
-    <div 
-      className={`flex flex-col w-full md:w-80 min-w-[280px] max-w-full bg-card rounded-xl border border-border transition-all duration-200 ${
-        isOver ? 'ring-2 ring-primary/50 border-primary/30' : ''
+    <div
+      className={`group flex flex-col w-full md:w-80 min-w-[280px] max-w-full rounded-2xl border backdrop-blur-xl transition-all duration-300 ease-out ${
+        isOver
+          ? 'ring-2 ring-primary/40 border-primary/40 bg-card/90 scale-[1.01]'
+          : 'border-border/50 bg-card/60 hover:bg-card/80 hover:border-border/80'
       }`}
       data-testid={`column-${config.id}`}
     >
-      {/* Column Header */}
-      <div 
-        className="flex items-center justify-between p-4 border-b border-border"
-        style={{ borderTopColor: config.color, borderTopWidth: '3px', borderTopLeftRadius: '0.75rem', borderTopRightRadius: '0.75rem' }}
+      {/* Column Header with Glassmorphism */}
+      <div
+        className="relative flex items-center justify-between px-4 py-4 border-b border-border/50 overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${accentColor}08 0%, transparent 60%)`,
+        }}
       >
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-foreground">
+        {/* Accent Line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px] opacity-80"
+          style={{ backgroundColor: accentColor, boxShadow: `0 0 12px ${accentColor}40` }}
+        />
+
+        {/* Left Accent Bar */}
+        <div
+          className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full opacity-60"
+          style={{ backgroundColor: accentColor }}
+        />
+
+        <div className="flex items-center gap-3 pl-3">
+          <h2 className="text-sm font-semibold text-foreground tracking-tight">
             {config.name}
           </h2>
-          <span className="flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-medium rounded-full bg-muted text-muted-foreground">
+          <span
+            className="flex items-center justify-center min-w-[22px] h-[22px] px-1.5 text-[11px] font-semibold rounded-full border transition-colors duration-200"
+            style={{
+              backgroundColor: `${accentColor}15`,
+              borderColor: `${accentColor}30`,
+              color: accentColor,
+            }}
+          >
             {tasks.length}
           </span>
         </div>
+
         <Button
           variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
+          size="sm"
+          className="h-7 gap-1.5 px-2 text-xs font-medium text-muted-foreground/80 hover:text-foreground hover:bg-white/5 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-105 active:scale-95"
           onClick={() => setIsCreating(true)}
           title="Add Task"
         >
-          <Plus size={16} />
+          <Plus size={14} className="transition-transform duration-200" />
+          <span className="hidden sm:inline">Add</span>
         </Button>
       </div>
 
       {/* Task List with Scroll */}
       <ScrollArea className="flex-1 max-h-[calc(100vh-180px)]">
-        <div ref={setNodeRef} className="p-3 min-h-24">
+        <div
+          ref={setNodeRef}
+          className="p-3 min-h-[120px] smooth-height"
+          style={{
+            minHeight: tasks.length === 0 ? '120px' : `${tasks.length * 100 + 20}px`,
+          }}
+        >
           <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-2">
+            <div className="space-y-2.5 stagger-children">
               {tasks.map((task) => (
                 <TaskCard
                   key={task.id}
@@ -84,19 +127,33 @@ export function Column({ config, tasks, allColumns, onTaskCreate, onTaskDelete, 
             </div>
           </SortableContext>
 
-          {/* Empty state */}
+          {/* Empty State */}
           {tasks.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="flex flex-col items-center justify-center py-10 px-4 text-center animate-fade-in">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 hover:scale-110 hover:rotate-3"
+                style={{
+                  background: `linear-gradient(135deg, ${accentColor}10 0%, ${accentColor}05 100%)`,
+                  border: `1px solid ${accentColor}20`,
+                }}
+              >
+                <ClipboardList size={20} style={{ color: accentColor, opacity: 0.6 }} className="transition-transform duration-300" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground/80 mb-1">
+                No tasks yet
+              </p>
+              <p className="text-xs text-muted-foreground/50 mb-3">
+                Drag tasks here or create a new one
+              </p>
               <Button
                 variant="ghost"
-                size="icon"
-                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mb-2 hover:bg-muted"
+                size="sm"
+                className="h-8 gap-1.5 px-3 text-xs font-medium text-muted-foreground/70 hover:text-foreground transition-all duration-200 hover:scale-105 active:scale-95"
                 onClick={() => setIsCreating(true)}
-                title="Add Task"
               >
-                <Plus size={18} className="text-muted-foreground" />
+                <Plus size={14} className="transition-transform duration-200 group-hover:rotate-90" />
+                Create task
               </Button>
-              <p className="text-xs text-muted-foreground">No tasks yet</p>
             </div>
           )}
         </div>

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react'
+import { FolderKanban, Shield, Sparkles, Loader2, CheckCircle2, FileStack } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
 
 interface InitStatus {
   initialized: boolean
@@ -50,52 +53,135 @@ function InitializationOverlay({ onInitialized }: { onInitialized: () => void })
   if (loading || (status && status.initialized)) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="w-full max-w-md p-8 bg-card border border-border rounded-xl shadow-2xl">
-        <div className="flex flex-col items-center gap-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted" />
+      
+      {/* Subtle grid pattern overlay */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      
+      {/* Blur backdrop */}
+      <div className="absolute inset-0 backdrop-blur-xl bg-background/40" />
+      
+      {/* Decorative gradient orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      {/* Main card with glassmorphism */}
+      <div className="relative w-full max-w-lg mx-4 animate-in fade-in zoom-in-95 duration-500">
+        {/* Card glow effect */}
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur opacity-50" />
+        
+        <div className="relative bg-card/80 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl overflow-hidden">
+          {/* Top gradient bar */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
           
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">Setup Kanban</h1>
-            <p className="text-muted-foreground">
-              The configuration directory <code className="px-1.5 py-0.5 bg-muted rounded text-foreground font-mono text-sm">{status?.dbPath}</code> is missing.
-            </p>
-          </div>
-
-          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm text-yellow-600 dark:text-yellow-400">
-            <strong>Security Check:</strong> Are you sure you allow Kanban to create its data files in this directory?
-            <div className="mt-2 font-mono break-all opacity-80">{status?.pwd}</div>
-          </div>
-
-          {error && (
-            <div className="w-full p-3 bg-red-500/10 border border-red-500/20 rounded text-red-600 text-sm">
-              {error}
+          <div className="p-8">
+            {/* Icon and title section */}
+            <div className="flex flex-col items-center text-center">
+              {/* Animated icon container */}
+              <div className="relative mb-6">
+                {/* Outer glow ring */}
+                <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl animate-pulse" />
+                
+                {/* Icon background */}
+                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
+                  <FolderKanban className="w-10 h-10 text-primary-foreground" />
+                  
+                  {/* Sparkle decoration */}
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-background rounded-full flex items-center justify-center shadow-md">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Typography */}
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Welcome to Kanban
+              </h1>
+              <p className="mt-2 text-muted-foreground text-base max-w-sm">
+                Let's set up your workspace. We'll create everything you need to get started.
+              </p>
             </div>
-          )}
-
-          <div className="flex w-full gap-3">
-            <button
-              onClick={() => window.location.reload()}
-              className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleInitialize}
-              disabled={initializing}
-              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {initializing ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  Initializing...
-                </>
-              ) : (
-                'Yes, create it'
-              )}
-            </button>
+            
+            {/* Divider */}
+            <div className="my-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            
+            {/* Security check card */}
+            <div className="relative overflow-hidden rounded-lg border border-border/50 bg-muted/50 p-4">
+              {/* Subtle background pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
+                  backgroundSize: '16px 16px'
+                }} />
+              </div>
+              
+              <div className="relative flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-foreground">Security Check</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Kanban will create its data directory in the current location:
+                  </p>
+                  <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <FileStack className="w-3.5 h-3.5 flex-shrink-0" />
+                    <code className="font-mono bg-background/80 px-2 py-1 rounded border border-border/50 break-all">
+                      {status?.dbPath}
+                    </code>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Error message */}
+            {error && (
+              <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm animate-in slide-in-from-top-1">
+                {error}
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div className="mt-6 flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 h-11 font-medium"
+                onClick={() => window.location.reload()}
+                disabled={initializing}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 h-11 font-medium shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
+                onClick={handleInitialize}
+                disabled={initializing}
+              >
+                {initializing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Setting up...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Create Workspace</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            {/* Footer note */}
+            <p className="mt-4 text-center text-xs text-muted-foreground/60">
+              Current directory: <span className="font-mono">{status?.pwd}</span>
+            </p>
           </div>
         </div>
       </div>
